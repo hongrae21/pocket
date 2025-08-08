@@ -24,6 +24,15 @@ impl Vec2 {
         let d = v1 - v2;
         Self::dot(d, d)
     }
+
+    fn proj(a: Self, b: Self) -> Self {
+        // proj_b a
+        b * (Self::dot(a, b) / Self::dot(b, b))
+    }
+
+    pub fn refl(v: Self, norm: Self) -> Self {
+        Self::proj(norm, v) * 2.0 - v
+    }
 }
 
 impl Add for Vec2 {

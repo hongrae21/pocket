@@ -101,9 +101,11 @@ impl Game {
         let dt = self.get_dt();
         self.ball.update(dt);
 
-        if collide_circle_and_ellipse(&self.ball.obj, &self.elp) > 0.0{
-            // println!("Hello");
-            // so go ahead
+        let coll = collide_circle_and_ellipse(&self.ball.obj, &self.elp);
+        if coll > 0.0{
+            let nang = coll + std::f32::consts::PI / 2.0;
+            let norm = Vec2 {x: f32::cos(nang), y: f32::sin(nang)};
+            self.ball.dir = Vec2::refl(self.ball.dir, norm);
         }
 
     }
