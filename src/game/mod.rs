@@ -30,11 +30,9 @@ pub fn draw_ellipse(cvs: &mut Canvas<Window>, elp: &Ellipse) {
     for i in 0..360 {
         let ang1 = i as f32 * std::f32::consts::PI / 180.0;
         let ang2 = (i + 1) as f32 * std::f32::consts::PI / 180.0;
-        let x1 = (elp.x + elp.a * f32::cos(ang1)) as i32;
-        let y1 = (elp.y + elp.b * f32::sin(ang1)) as i32;
-        let x2 = (elp.x + elp.a * f32::cos(ang2)) as i32;
-        let y2 = (elp.y + elp.b * f32::sin(ang2)) as i32;
-        cvs.draw_line(Point::new(x1, y1), Point::new(x2, y2)).unwrap();
+        let p1 = elp.pos + Vec2 {x: elp.a * f32::cos(ang1), y: elp.b * f32::sin(ang1) };
+        let p2 = elp.pos + Vec2 {x: elp.a * f32::cos(ang2), y: elp.b * f32::sin(ang2) };
+        cvs.draw_line(p1.to_point(), p2.to_point()).unwrap();
     }
 }
 
@@ -58,7 +56,7 @@ impl Game {
         .build()
         .unwrap();
         let cvs = win.into_canvas().build().unwrap();
-        let elp = Ellipse {x: 400.0, y: 300.0, a: 250.0, b: 150.0};
+        let elp = Ellipse {pos: Vec2 {x: 400.0, y: 300.0}, a: 250.0, b: 150.0};
         let ball = Ball {
             obj: Circle {pos: Vec2 {x: 400.0, y: 300.0}, r: 10.0},
             dir: Vec2 {x: f32::sqrt(2.0) / 2.0, y: f32::sqrt(2.0)},
