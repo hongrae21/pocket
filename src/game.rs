@@ -1,38 +1,56 @@
 use std::time::{Duration, Instant};
-use std::thread::sleep;
 use std::cmp::min;
 
 use sdl2::Sdl;
+use sdl2::rect::Point;
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::video::Window;
 
+use crate::math::Ellipse;
+
 pub struct Game {
     sdl: Sdl,
     cvs: Canvas<Window>,
+    elp: Ellipse,
     tick: Instant,
     run: bool
 }
 
-pub fn init_game() -> Game {
-    let sdl = sdl2::init().unwrap();
-    let vid = sdl.video().unwrap();
-    let win = vid.window("pocket", 800, 600)
-        .position_centered()
-        .build()
-        .unwrap();
-    let cvs = win.into_canvas().build().unwrap();
-    Game {
-        sdl: sdl,
-        cvs: cvs,
-        tick: Instant::now(),
-        run: true
+pub fn draw_ellipse(cvs: &mut Canvas<Window>, elp: &Ellipse) {
+    for i in 0..360 {
+        let ang1 = i as f32 * std::f32::consts::PI / 180.0;
+        let ang2 = (i + 1) as f32 * std::f32::consts::PI / 180.0;
+        let x1 = (elp.x + elp.a * f32::cos(ang1)) as i32;
+        let y1 = (elp.y + elp.b * f32::sin(ang1)) as i32;
+        let x2 = (elp.x + elp.a * f32::cos(ang2)) as i32;
+        let y2 = (elp.y + elp.b * f32::sin(ang2)) as i32;
+        cvs.draw_line(Point::new(x1, y1), Point::new(x2, y2)).unwrap();
     }
 }
 
+
 impl Game {
+    pub fn new() -> Game {
+        let sdl = sdl2::init().unwrap();
+        let vid = sdl.video().unwrap();
+        let win = vid.window("pocket", 800, 600)
+        .position_centered()
+        .build()
+        .unwrap();
+        let elp = Ellipse {x: 400.0, y: 300.0, a: 250.0, b: 150.0};
+        let cvs = win.into_canvas().build().unwrap();
+        Game {
+            sdl: sdl,
+            cvs: cvs,
+            elp: elp,
+            tick: Instant::now(),
+            run: true
+        }
+    }
+
     fn input(&mut self) {
         let mut pump = self.sdl.event_pump().unwrap();
         for e in pump.poll_iter() {
@@ -66,6 +84,13 @@ impl Game {
     fn output(&mut self) {
         self.cvs.set_draw_color(Color::WHITE);
         self.cvs.clear();
+
+        // change pen color
+        self.cvs.set_draw_color(Color::BLACK);
+
+        // draw ellipse
+        draw_ellipse(&mut self.cvs, &self.elp);
+
         self.cvs.present();
     }
 

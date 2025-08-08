@@ -1,8 +1,9 @@
 mod game;
+mod math;
 
-use game::init_game;
+use game::Game;
 
 pub fn main() {
-    let mut g = init_game();
+    let mut g = Game::new();
     g.run();
 }
