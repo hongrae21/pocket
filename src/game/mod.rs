@@ -9,7 +9,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::video::Window;
 
-use crate::math::Vec2;
+use crate::math::{collide_circle_and_ellipse, Vec2};
 use crate::math::Circle;
 use crate::math::Ellipse;
 
@@ -100,6 +100,11 @@ impl Game {
 
         let dt = self.get_dt();
         self.ball.update(dt);
+
+        if collide_circle_and_ellipse(&self.ball.obj, &self.elp) > 0.0{
+            // println!("Hello");
+            // so go ahead
+        }
 
     }
 
