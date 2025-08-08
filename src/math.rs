@@ -1,9 +1,6 @@
 use sdl2::rect::Point;
 
-use std::ops::Add;
-use std::ops::Sub;
-use std::ops::AddAssign;
-use std::ops::Mul;
+use std::ops::{Add, AddAssign, Sub, Mul};
 
 #[derive(Copy, Clone)]
 pub struct Vec2 {
@@ -82,6 +79,16 @@ pub struct Ellipse {
     pub pos: Vec2,
     pub a: f32,
     pub b: f32,
+
+    // for a while the simulation suppose a > b
+}
+
+impl Ellipse {
+    pub fn focus(&self) -> (Vec2, Vec2) {
+        let c = f32::sqrt(self.a * self.a - self.b * self.b);
+        let d = Vec2 {x: c, y: 0.0};
+        (self.pos + d, self.pos - d)
+    }
 }
 
 pub fn collide_circle_and_ellipse(cir: &Circle, elp: &Ellipse) -> f32 {

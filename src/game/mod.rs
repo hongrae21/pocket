@@ -58,7 +58,7 @@ impl Game {
         let cvs = win.into_canvas().build().unwrap();
         let elp = Ellipse {pos: Vec2 {x: 400.0, y: 300.0}, a: 250.0, b: 150.0};
         let ball = Ball {
-            obj: Circle {pos: Vec2 {x: 400.0, y: 300.0}, r: 10.0},
+            obj: Circle {pos: Vec2 {x: 600.0, y: 300.0}, r: 10.0},
             dir: Vec2 {x: f32::sqrt(2.0) / 2.0, y: f32::sqrt(2.0)},
             sped: 50.0
         };
@@ -95,7 +95,7 @@ impl Game {
     }
 
     fn update(&mut self) {
-        let fps = 60;
+        let fps = 120;
         while (Instant::now() - self.tick) > Duration::new(0, 1_000_000_000u32 / fps) {}
 
         let dt = self.get_dt();
@@ -122,6 +122,11 @@ impl Game {
         // draw ball
         self.cvs.set_draw_color(Color::GRAY);
         draw_filled_circle(&mut self.cvs, &self.ball.obj);
+
+        // mark focus of ellipse
+        self.cvs.set_draw_color(Color::GREEN);
+        draw_filled_circle(&mut self.cvs, &Circle {pos: self.elp.focus().0, r: 3.0});
+        draw_filled_circle(&mut self.cvs, &Circle {pos: self.elp.focus().1, r: 3.0});
 
         self.cvs.present();
     }
