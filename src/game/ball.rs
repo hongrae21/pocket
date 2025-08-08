@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use crate::math::Vec2;
-use crate::math::Circle;
+use crate::math::{Vec2, Circle};
 
 
 pub struct Ball {

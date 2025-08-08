@@ -1,5 +1,3 @@
-use std::thread::sleep;
-
 use std::time::{Duration, Instant};
 use std::cmp::min;
 
@@ -11,9 +9,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::video::Window;
 
-use crate::math::{collide_circle_and_ellipse, Vec2};
-use crate::math::Circle;
-use crate::math::Ellipse;
+use crate::math::{Vec2, Circle, Ellipse, collide_circle_and_ellipse};
 
 mod ball;
 
