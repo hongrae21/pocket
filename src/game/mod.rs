@@ -1,3 +1,5 @@
+use std::thread::sleep;
+
 use std::time::{Duration, Instant};
 use std::cmp::min;
 
@@ -30,8 +32,8 @@ pub fn draw_ellipse(cvs: &mut Canvas<Window>, elp: &Ellipse) {
     for i in 0..360 {
         let ang1 = i as f32 * std::f32::consts::PI / 180.0;
         let ang2 = (i + 1) as f32 * std::f32::consts::PI / 180.0;
-        let p1 = elp.pos + Vec2 {x: elp.a * f32::cos(ang1), y: elp.b * f32::sin(ang1) };
-        let p2 = elp.pos + Vec2 {x: elp.a * f32::cos(ang2), y: elp.b * f32::sin(ang2) };
+        let p1 = elp.point(ang1);
+        let p2 = elp.point(ang2);
         cvs.draw_line(p1.to_point(), p2.to_point()).unwrap();
     }
 }
@@ -95,19 +97,16 @@ impl Game {
     }
 
     fn update(&mut self) {
-        let fps = 120;
-        while (Instant::now() - self.tick) > Duration::new(0, 1_000_000_000u32 / fps) {}
+        let fps = 60;
+        while (Instant::now() - self.tick) < Duration::new(0, 1_000_000_000u32 / fps) {}
 
         let dt = self.get_dt();
         self.ball.update(dt);
 
         let coll = collide_circle_and_ellipse(&self.ball.obj, &self.elp);
-        if coll > 0.0{
-            let nang = coll + std::f32::consts::PI / 2.0;
-            let norm = Vec2 {x: f32::cos(nang), y: f32::sin(nang)};
-            self.ball.dir = Vec2::refl(self.ball.dir, norm);
+        if coll > 0.0 && Vec2::dot(self.elp.point(coll) - self.elp.pos, self.ball.dir) > 0.0 {
+            self.ball.dir = Vec2::refl(-self.ball.dir, self.elp.norm(coll));
         }
-
     }
 
     fn output(&mut self) {
@@ -124,7 +123,7 @@ impl Game {
         draw_filled_circle(&mut self.cvs, &self.ball.obj);
 
         // mark focus of ellipse
-        self.cvs.set_draw_color(Color::GREEN);
+        self.cvs.set_draw_color(Color::RED);
         draw_filled_circle(&mut self.cvs, &Circle {pos: self.elp.focus().0, r: 3.0});
         draw_filled_circle(&mut self.cvs, &Circle {pos: self.elp.focus().1, r: 3.0});
 

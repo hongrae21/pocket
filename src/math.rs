@@ -1,6 +1,6 @@
 use sdl2::rect::Point;
 
-use std::ops::{Add, AddAssign, Sub, Mul};
+use std::ops::{Add, AddAssign, Sub, Neg, Mul};
 
 #[derive(Copy, Clone)]
 pub struct Vec2 {
@@ -13,7 +13,7 @@ impl Vec2 {
         Point::new(self.x as i32, self.y as i32)
     }
 
-    fn dot(v1: Self, v2: Self) -> f32 {
+    pub fn dot(v1: Self, v2: Self) -> f32 {
         v1.x * v2.x + v1.y * v2.y
     }
 
@@ -24,11 +24,15 @@ impl Vec2 {
 
     fn proj(a: Self, b: Self) -> Self {
         // proj_b a
-        b * (Self::dot(a, b) / Self::dot(b, b))
+        Self::unit(b) * Self::dot(a, b)
     }
 
     pub fn refl(v: Self, norm: Self) -> Self {
-        Self::proj(norm, v) * 2.0 - v
+        Self::proj(v, norm) * 2.0 - v
+    }
+
+    pub fn unit(v: Self) -> Vec2 {
+        v * (1.0 / f32::sqrt(Self::dot(v, v)))
     }
 }
 
@@ -48,6 +52,16 @@ impl Sub for Vec2 {
         Vec2 {
             x: self.x - rhs.x,
             y: self.y - rhs.y
+        }
+    }
+}
+
+impl Neg for Vec2 {
+    type Output = Self;
+    fn neg(self) -> Self {
+        Vec2 {
+            x: -self.x,
+            y: -self.y
         }
     }
 }
@@ -89,14 +103,29 @@ impl Ellipse {
         let d = Vec2 {x: c, y: 0.0};
         (self.pos + d, self.pos - d)
     }
+
+    pub fn point(&self, t: f32) -> Vec2 {
+        self.pos + Vec2 {x: self.a * f32::cos(t), y: self.b * f32::sin(t)}
+    }
+
+    pub fn tan(&self, t: f32) -> Vec2 {
+        Vec2::unit(Vec2 {x:-self.a * f32::sin(t), y: self.b * f32::cos(t)})
+    }
+
+    pub fn norm(&self, t: f32) -> Vec2 {
+        let tan = self.tan(t);
+        Vec2 {x: -tan.y, y: tan.x}
+    }
 }
+
+// fuck coordination system
 
 pub fn collide_circle_and_ellipse(cir: &Circle, elp: &Ellipse) -> f32 {
     let mut mang = 0.0;
     let mut mdist2 = 1e9;
     for i in 0..360 {
         let ang = i as f32 * std::f32::consts::PI / 180.0;
-        let pos = elp.pos + Vec2 {x: elp.a * f32::cos(ang), y: elp.b * f32::sin(ang)};
+        let pos = elp.point(ang);
         let dist2 = Vec2::dist2(pos, cir.pos);
         if dist2 < mdist2 {
             mang = ang;
