@@ -10,11 +10,13 @@ use sdl2::keyboard::Keycode;
 use sdl2::video::Window;
 
 use crate::math::Ellipse;
+use crate::math::Circle;
 
 pub struct Game {
     sdl: Sdl,
     cvs: Canvas<Window>,
     elp: Ellipse,
+    ball: Circle,
     tick: Instant,
     run: bool
 }
@@ -31,6 +33,16 @@ pub fn draw_ellipse(cvs: &mut Canvas<Window>, elp: &Ellipse) {
     }
 }
 
+pub fn draw_filled_circle(cvs: &mut Canvas<Window>, cir: &Circle) {
+    for i in -cir.r as i32..cir.r as i32 + 1 {
+        for j in -cir.r as i32..cir.r as i32 + 1 {
+            if (i * i + j * j) as f32 <= cir.r * cir.r {
+                cvs.draw_point(Point::new(cir.x as i32 + i, cir.y as i32 + j)).unwrap();
+            }
+        }
+    }
+}
+
 
 impl Game {
     pub fn new() -> Game {
@@ -40,12 +52,14 @@ impl Game {
         .position_centered()
         .build()
         .unwrap();
-        let elp = Ellipse {x: 400.0, y: 300.0, a: 250.0, b: 150.0};
         let cvs = win.into_canvas().build().unwrap();
+        let elp = Ellipse {x: 400.0, y: 300.0, a: 250.0, b: 150.0};
+        let ball  = Circle {x: 400.0, y: 300.0, r: 10.0};
         Game {
             sdl: sdl,
             cvs: cvs,
             elp: elp,
+            ball: ball,
             tick: Instant::now(),
             run: true
         }
@@ -85,11 +99,14 @@ impl Game {
         self.cvs.set_draw_color(Color::WHITE);
         self.cvs.clear();
 
-        // change pen color
-        self.cvs.set_draw_color(Color::BLACK);
 
         // draw ellipse
+        self.cvs.set_draw_color(Color::BLACK);
         draw_ellipse(&mut self.cvs, &self.elp);
+
+        // draw ball
+        self.cvs.set_draw_color(Color::GRAY);
+        draw_filled_circle(&mut self.cvs, &self.ball);
 
         self.cvs.present();
     }
