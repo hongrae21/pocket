@@ -9,14 +9,19 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::video::Window;
 
-use crate::math::Ellipse;
+use crate::math::Vec2;
 use crate::math::Circle;
+use crate::math::Ellipse;
+
+mod ball;
+
+use ball::Ball;
 
 pub struct Game {
     sdl: Sdl,
     cvs: Canvas<Window>,
     elp: Ellipse,
-    ball: Circle,
+    ball: Ball,
     tick: Instant,
     run: bool
 }
@@ -37,7 +42,7 @@ pub fn draw_filled_circle(cvs: &mut Canvas<Window>, cir: &Circle) {
     for i in -cir.r as i32..cir.r as i32 + 1 {
         for j in -cir.r as i32..cir.r as i32 + 1 {
             if (i * i + j * j) as f32 <= cir.r * cir.r {
-                cvs.draw_point(Point::new(cir.x as i32 + i, cir.y as i32 + j)).unwrap();
+                cvs.draw_point(Point::new(cir.pos.x as i32 + i, cir.pos.y as i32 + j)).unwrap();
             }
         }
     }
@@ -54,7 +59,11 @@ impl Game {
         .unwrap();
         let cvs = win.into_canvas().build().unwrap();
         let elp = Ellipse {x: 400.0, y: 300.0, a: 250.0, b: 150.0};
-        let ball  = Circle {x: 400.0, y: 300.0, r: 10.0};
+        let ball = Ball {
+            obj: Circle {pos: Vec2 {x: 400.0, y: 300.0}, r: 10.0},
+            dir: Vec2 {x: f32::sqrt(2.0) / 2.0, y: f32::sqrt(2.0)},
+            sped: 50.0
+        };
         Game {
             sdl: sdl,
             cvs: cvs,
@@ -92,6 +101,7 @@ impl Game {
         while (Instant::now() - self.tick) > Duration::new(0, 1_000_000_000u32 / fps) {}
 
         let dt = self.get_dt();
+        self.ball.update(dt);
 
     }
 
@@ -106,7 +116,7 @@ impl Game {
 
         // draw ball
         self.cvs.set_draw_color(Color::GRAY);
-        draw_filled_circle(&mut self.cvs, &self.ball);
+        draw_filled_circle(&mut self.cvs, &self.ball.obj);
 
         self.cvs.present();
     }
