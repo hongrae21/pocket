@@ -118,8 +118,7 @@ impl Ellipse {
     }
 }
 
-// fuck coordination system
-
+// TODO: This part SHOULD BE EDITED. the reflection algorithm is inaccurate. collision dectection? I dont know. fuck
 pub fn collide_circle_and_ellipse(cir: &Circle, elp: &Ellipse) -> f32 {
     let mut mang = 0.0;
     let mut mdist2 = 1e9;

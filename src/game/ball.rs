@@ -9,6 +9,7 @@ pub struct Ball {
     pub sped: f32
 }
 
+// TODO: ball size should be adjusted. so some refactoring be needed.
 impl Ball {
     pub fn update(&mut self, dt: Duration) {
         self.obj.pos += self.dir.clone() * self.sped.clone() * dt.as_secs_f32();
